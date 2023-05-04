@@ -1,45 +1,53 @@
-// Get the tbody element where the table rows will be added
-const tbody = document.getElementById("output");
+//your JS code here. If required.
+const res = document.getElementById("output");
 
-// Add a row that says "Loading..." initially
-const loadingRow = document.createElement("tr");
-const loadingCell = document.createElement("td");
-loadingCell.colSpan = 2;
-loadingCell.textContent = "Loading...";
-loadingRow.appendChild(loadingCell);
-tbody.appendChild(loadingRow);
-
-// Create 3 Promises that resolve after a random time between 1 and 3 seconds
 const promises = [
-  new Promise(resolve => setTimeout(() => resolve(Math.random() * 2 + 1), Math.random() * 2000 + 1000)),
-  new Promise(resolve => setTimeout(() => resolve(Math.random() * 2 + 1), Math.random() * 2000 + 1000)),
-  new Promise(resolve => setTimeout(() => resolve(Math.random() * 2 + 1), Math.random() * 2000 + 1000))
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 1", time: time / 1000 }), time);
+  }),
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 2", time: time / 1000 }), time);
+  }),
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 3", time: time / 1000 }), time);
+  }),
 ];
 
-// Wait for all Promises to resolve using Promise.all
-Promise.all(promises).then(results => {
-  // Remove the "Loading..." row
-  tbody.removeChild(loadingRow);
+async function callFnc() {
+  const start = new Date();
+  // Use Promise.all to wait for all Promises to resolve
+  res.innerHTML += `
+            <tr id="loading">
+                <td colspan=2>Loading...</td>
+            </tr>
+          `;
+  await Promise.all(promises)
+    .then((results) => {
+      res.innerHTML = ``;
+      // Log the array of results
+      results.forEach((e) => {
+        res.innerHTML += `
+            <tr>
+                <td>${e.name}</td>
+                <td>${e.time}</td>
+            </tr>
+          `;
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 
-  // Add rows for each Promise and their respective times
-  results.forEach((result, index) => {
-    const row = document.createElement("tr");
-    const nameCell = document.createElement("td");
-    nameCell.textContent = `Promise ${index + 1}`;
-    const timeCell = document.createElement("td");
-    timeCell.textContent = result.toFixed(3);
-    row.appendChild(nameCell);
-    row.appendChild(timeCell);
-    tbody.appendChild(row);
-  });
-
-  // Add a row for the total time taken to resolve all Promises
-  const totalRow = document.createElement("tr");
-  const totalNameCell = document.createElement("td");
-  totalNameCell.textContent = "Total";
-  const totalTimeCell = document.createElement("td");
-  totalTimeCell.textContent = results.reduce((acc, cur) => acc + cur, 0).toFixed(3);
-  totalRow.appendChild(totalNameCell);
-  totalRow.appendChild(totalTimeCell);
-  tbody.appendChild(totalRow);
-});
+  const end = new Date();
+  const timeInMillis = end - start;
+  res.innerHTML += `
+            <tr>
+                <td>Total</td>
+                <td>${timeInMillis / 1000}</td>
+            </tr>
+          `;
+}
+callFnc();
